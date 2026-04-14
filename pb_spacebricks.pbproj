@@ -1,0 +1,8 @@
+﻿<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<Project>
+  <Type Name="pb"/>
+  <Application Name="pb_spacebricks"/>
+  <Libraries AppEntry="pb_spacebricks.pbl">
+    <Library Path="pb_spacebricks.pbl"/>
+  </Libraries>
+</Project>
