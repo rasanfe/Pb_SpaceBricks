@@ -1,104 +1,148 @@
-# 🧱 Space Bricks
+# 🧱 Pb_SpaceBricks — un Arkanoid en PowerBuilder (DataWindow y HTML5)
 
-> **Space Bricks** is a tribute to the classic **Arkanoid** — a fully playable brick-breaker built in **PowerBuilder 2025** with **two rendering engines**: a native DataWindow version and an HTML5 Canvas version running inside a WebBrowser control. A main menu lets you choose between them.
+![PowerBuilder](https://img.shields.io/badge/PowerBuilder-2025-2D6FB3?style=flat-square&logo=appian&logoColor=white)
+![DataWindow](https://img.shields.io/badge/motor-DataWindow%20%2B%20HTML5-orange?style=flat-square)
+![PowerClient](https://img.shields.io/badge/despliegue-PowerClient-6f42c1?style=flat-square)
+![License](https://img.shields.io/badge/license-MIT-green?style=flat-square)
+![Blog](https://img.shields.io/badge/blog-rsrsystem-FF5722?style=flat-square&logo=blogger&logoColor=white)
 
-![PowerBuilder](https://img.shields.io/badge/PowerBuilder-2025%20(R25)-blue)
-![License](https://img.shields.io/badge/license-MIT-green)
+![Space Bricks en acción](screenshoot.gif)
 
-![Space Bricks in action](screenshoot.gif)
+## 📋 ¿Qué es esto?
 
----
+**Space Bricks** es un homenaje al clásico **Arkanoid**: un rompe-ladrillos
+completamente jugable hecho en **PowerBuilder 2025**, y con un capricho que lo hace
+especial — viene con **dos motores de renderizado**: una versión nativa con
+**DataWindow** y otra en **HTML5 Canvas** corriendo dentro de un control WebBrowser.
+Un menú principal te deja elegir con cuál jugar.
 
-## ✨ Why?
+## ✨ Por qué lo hice
 
-After building a [Snake game](../Pb_Snake_Dw) entirely inside a DataWindow, I wanted to push PowerBuilder further with an Arkanoid/Breakout-style game that requires real physics: continuous ball movement, angle-based paddle rebounds, and per-pixel collision detection.
+Después de montar el [Snake](../Pb_Snake_Dw) enterito dentro de un DataWindow, quería
+exprimir más a PowerBuilder con un juego tipo Arkanoid/Breakout, que ya pide **físicas
+de verdad**: movimiento continuo de la bola, rebotes en la pala según el ángulo y
+detección de colisiones precisa.
 
-The result is two versions of the same game:
+El resultado son **dos versiones del mismo juego**:
 
-- **Native PB** — the game runs on a DataWindow with dynamically created rectangles and ovals, a `Timer` event, and `Modify()` for rendering. Everything is PowerBuilder, no external tech.
-- **HTML5** — the same game reimplemented in plain JavaScript with Canvas 2D, running inside PB's `WebBrowser` control via `NavigateToString()`. Smooth 60 FPS pixel-perfect animation.
+- **PB nativo** — el juego corre sobre un DataWindow con rectángulos y óvalos creados
+  dinámicamente, un evento `Timer` y `Modify()` para renderizar. Todo es PowerBuilder,
+  sin tecnología externa.
+- **HTML5** — el mismo juego reescrito en JavaScript plano con Canvas 2D, dentro del
+  control `WebBrowser` de PB vía `NavigateToString()`. Animación suave a 60 FPS, pixel
+  perfect. Sin frameworks, sin CDN, sin npm.
 
-A launcher window (`w_main`) lets you pick which version to play.
+Una ventana lanzadera (`w_main`) te deja elegir qué versión jugar.
 
-## 🎮 How to play
+## 🎮 Cómo se juega
 
-| Key | Action |
+| Tecla | Acción |
 |---|---|
-| ⬅️ ➡️ | Move the paddle |
-| `Space` | Launch ball / Pause / Resume |
-| `Restart` button | New game |
+| ⬅️ ➡️ | Mover la pala |
+| `Espacio` | Lanzar bola / Pausa / Reanudar |
+| Botón `Restart` | Partida nueva |
 
-- Break all **7 rows of colored bricks** (7 bricks per row = 49 total).
-- The ball bounces off walls, bricks, and the paddle.
-- Paddle angle matters: hit the edges for sharper angles, the center for straight bounces.
-- You have **3 lives**. Miss the ball and lose one.
+- Rompe las **7 filas de ladrillos de colores** (7 ladrillos por fila = 49 en total).
+- La bola rebota en paredes, ladrillos y pala.
+- El ángulo de la pala importa: golpea con los bordes para ángulos cerrados, con el
+  centro para rebotes rectos.
+- Tienes **3 vidas**. Si se te escapa la bola, pierdes una.
 
-## 🧠 How it works
+## 🧠 Cómo funciona
 
-### Native PB version (`w_arcanoid`)
+### Versión PB nativa (`w_spacebricks`)
 
-The DataWindow `dw_arcanoid` uses a **single row** with a **single detail band** of 1870 PBU height — the entire playfield in one band. The `cells` column is a `char(800)` string where each character encodes one grid cell (21 columns × 34 rows = 714 characters).
+El DataWindow `dw_spacebricks` usa **una sola fila** con **una única banda de detalle**
+de 1870 PBU de alto — todo el campo de juego en una sola banda. La columna `cells` es
+un `char(800)` donde cada carácter codifica una celda de la rejilla (21 columnas × 34
+filas = 714 caracteres).
 
-At startup, `wf_init_grid()` creates:
-- **49 brick rectangles** at absolute positions, with visibility and color bound to DataWindow expressions reading from the `cells` string
-- **1 paddle rectangle**, repositioned with `Modify("paddle.x = '…'")`
-- **1 ball oval**, repositioned with `Modify("ball.x = '…' ball.y = '…'")`
+Al arrancar, `wf_init_grid()` crea:
+- **49 rectángulos de ladrillo** en posiciones absolutas, con visibilidad y color
+  enlazados a expresiones del DataWindow que leen de la cadena `cells`.
+- **1 rectángulo de pala**, recolocado con `Modify("paddle.x = '…'")`.
+- **1 óvalo de bola**, recolocado con `Modify("ball.x = '…' ball.y = '…'")`.
 
-The ball moves in PBU coordinates (not cell-by-cell), giving smoother animation. Collision detection uses AABB overlap with minimum-overlap bounce direction — the same algorithm as the HTML version.
+La bola se mueve en coordenadas PBU (no celda a celda), lo que da una animación más
+suave. La detección de colisiones usa solape AABB con dirección de rebote por mínimo
+solapamiento — el mismo algoritmo que la versión HTML.
 
-### HTML version (`w_arcanoid_html`)
+### Versión HTML (`w_spacebricks_html`)
 
-The function `wf_get_html()` returns the complete game as a single HTML string. The window loads it with `wb_1.NavigateToString(ls_html)`. The game uses:
-- Plain JavaScript (no frameworks, no CDN)
-- Canvas 2D for rendering at ~60 FPS with `requestAnimationFrame`
-- Delta-time based movement for consistent speed
-- The same AABB collision + min-overlap bounce algorithm
+La función `wf_get_html()` devuelve el juego completo como una única cadena HTML. La
+ventana la carga con `wb_1.NavigateToString(ls_html)`. El juego usa:
+- JavaScript plano (sin frameworks, sin CDN).
+- Canvas 2D renderizando a ~60 FPS con `requestAnimationFrame`.
+- Movimiento basado en *delta-time* para velocidad constante.
+- El mismo algoritmo de colisiones AABB + rebote por mínimo solapamiento.
 
-### Launcher (`w_main`)
+### Lanzadera (`w_main`)
 
-A WebBrowser shows a welcome screen with two clickable cards. JavaScript calls `window.webBrowser.ue_nativo()` or `window.webBrowser.ue_html()` via PB's `RegisterEvent` mechanism. The user events open the chosen game window and close the launcher.
+Un WebBrowser muestra una pantalla de bienvenida con dos tarjetas clicables. El
+JavaScript llama a `window.webBrowser.ue_nativo()` o `window.webBrowser.ue_html()` vía
+el mecanismo `RegisterEvent` de PB. Los eventos de usuario abren la ventana del juego
+elegido y cierran la lanzadera.
 
-## 📁 Project layout
+## 🔄 Comparativa: nativo vs HTML
+
+| | PB nativo | HTML5 |
+|---|---|---|
+| **Renderizado** | DataWindow `Modify()` | Canvas 2D |
+| **FPS** | ~25 (Timer 40 ms) | ~60 (requestAnimationFrame) |
+| **Movimiento bola** | Coordenadas PBU | Coordenadas píxel + delta time |
+| **Colisiones** | AABB + mínimo solape | AABB + mínimo solape |
+| **Control pala** | `keydown()` en Timer | `addEventListener` keydown/keyup |
+| **Suavidad** | Buena | Excelente |
+
+## 🛠️ Requisitos
+
+- PowerBuilder **2025**.
+- Sin base de datos ni recursos externos.
+
+## ▶️ Cómo probarlo
+
+1. Abre `Pb_SpaceBricks.pbsln` en **PowerBuilder 2025**.
+2. Compila la solución.
+3. Ejecuta — se abre la lanzadera, elige tu versión.
+
+Se despliega como **PowerClient** (objeto de proyecto `pc_spacebricks`).
+
+### 📁 Estructura del proyecto
 
 ```
-Pb_Arcanoid/
-├── pb_arcanoid.pbl/
-│   ├── pb_arcanoid.sra       ← application object, opens w_main
-│   ├── w_main.srw            ← launcher: pick Native PB or HTML
-│   ├── w_arcanoid.srw        ← native PB game (DataWindow + Timer)
-│   ├── dw_arcanoid.srd       ← DataWindow definition (single band)
-│   └── w_arcanoid_html.srw   ← HTML5 game (WebBrowser + Canvas)
-├── pb_arcanoid.pbproj
-├── Pb_Arcanoid.pbsln
+Pb_SapaceBricks/
+├── pb_spacebricks.pbl/
+│   ├── pb_spacebricks.sra        ← objeto aplicación, abre w_main
+│   ├── w_main.srw                ← lanzadera: elige PB nativo o HTML
+│   ├── w_spacebricks.srw         ← juego PB nativo (DataWindow + Timer)
+│   ├── dw_spacebricks.srd        ← definición del DataWindow (banda única)
+│   ├── w_spacebricks_html.srw    ← juego HTML5 (WebBrowser + Canvas)
+│   └── pc_spacebricks.srj        ← proyecto PowerClient
+├── pb_spacebricks.pbproj
+├── Pb_SpaceBricks.pbsln
 ├── LICENSE
 └── README.md
 ```
 
-## 🚀 Build & run
+## 🔗 Repo PowerBuilder
 
-1. Open `Pb_Arcanoid.pbsln` in **PowerBuilder 2025 (release 25)**.
-2. Build the solution.
-3. Run — the launcher opens, pick your version.
+<https://github.com/rasanfe/Pb_SpaceBricks>
 
-No database connection, no external assets.
+## 🙌 Créditos
 
-## 🔄 Native vs HTML comparison
+La técnica de renderizado con DataWindow está inspirada en el [Snake](../Pb_Snake_Dw)
+de este mismo conjunto de ejemplos, que a su vez bebe de las
+[*Three Simple Games*](https://community.appeon.com/codeexchange/powerbuilder/114-three-simple-games)
+de **René Ullrich** en Appeon CodeExchange.
 
-| | Native PB | HTML5 |
-|---|---|---|
-| **Rendering** | DataWindow `Modify()` | Canvas 2D |
-| **FPS** | ~25 (Timer 40ms) | ~60 (requestAnimationFrame) |
-| **Ball movement** | PBU coordinates | Pixel coordinates + delta time |
-| **Collision** | AABB + min-overlap | AABB + min-overlap |
-| **Paddle control** | `keydown()` in Timer | `addEventListener` keydown/keyup |
-| **Smoothness** | Good | Excellent |
+Este proyecto fue desarrollado por **Claude Code** siguiendo mis ideas y dirección.
 
-## 🙏 Credits
-
-The DataWindow rendering technique was inspired by the [Snake game](../Pb_Snake_Dw) in this same repository, which in turn drew from **René Ullrich**'s [*Three Simple Games*](https://community.appeon.com/codeexchange/powerbuilder/114-three-simple-games) on Appeon CodeExchange.
-
-This project was developed by **Claude Code** following my ideas and direction.
-
-## 📜 License
+## 📜 Licencia
 
 [MIT](LICENSE) © 2026 Ramón San Félix Ramón
+
+---
+
+> ¡Nos vemos en el próximo artículo! Y recuerda: en PowerBuilder, los límites solo están en nuestra imaginación. 🚀
+
+📨 **Blog:** <https://rsrsystem.blogspot.com/>
